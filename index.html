@@ -475,9 +475,7 @@
 </main>
 
 <script>
-  // ── CONFIG ───────────────────────────────────────────────────────────────────
-  // Replace this with your Google Apps Script Web App URL after deployment.
-  // See README below for setup instructions.
+  
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq07frg-gH5hl8xoC78-F51V4fM78VXwGb4xKz-qCSKtodLe37OJgYJ4ysCPqwnop7Vg/exec";
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -663,93 +661,6 @@
     statusMsg.textContent = msg;
   }
 </script>
-
-<!--
-════════════════════════════════════════════════════════════════════════════════
-  README — GOOGLE SHEETS SETUP
-════════════════════════════════════════════════════════════════════════════════
-
-  This form submits to a Google Apps Script Web App, which writes each
-  submission into your Google Sheet. Follow these steps:
-
-  STEP 1 — Open your Google Sheet
-  ────────────────────────────────
-  Sheet: "Locust Avenue Petition - Signatures"
-  It's already in your Google Drive. Open it.
-
-  STEP 2 — Open the Apps Script editor
-  ──────────────────────────────────────
-  In the Sheet: Extensions → Apps Script
-
-  STEP 3 — Paste this script (replace any existing code):
-  ─────────────────────────────────────────────────────────
-
-  const SHEET_NAME = "Sheet1";
-  const FOLDER_NAME = "Petition Signatures";
-
-  function doPost(e) {
-    try {
-      const data = JSON.parse(e.postData.contents);
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName(SHEET_NAME);
-
-      // Save signature image to Drive folder
-      let sigUrl = "(no signature)";
-      if (data.signature && data.signature.startsWith("data:image/png;base64,")) {
-        const base64 = data.signature.replace("data:image/png;base64,", "");
-        const blob = Utilities.newBlob(Utilities.base64Decode(base64), "image/png",
-          "sig_" + data.name.replace(/\s+/g,"_") + "_" + Date.now() + ".png");
-        let folder;
-        const folders = DriveApp.getFoldersByName(FOLDER_NAME);
-        folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(FOLDER_NAME);
-        const file = folder.createFile(blob);
-        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-        sigUrl = file.getUrl();
-      }
-
-      sheet.appendRow([
-        data.timestamp,
-        data.name,
-        data.address,
-        data.comments,
-        sigUrl
-      ]);
-
-      return ContentService
-        .createTextOutput(JSON.stringify({ result: "success" }))
-        .setMimeType(ContentService.MimeType.JSON);
-
-    } catch(err) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ result: "error", error: err.message }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-  }
-
-  STEP 4 — Deploy as a Web App
-  ──────────────────────────────
-  Click "Deploy" → "New deployment"
-  → Type: Web App
-  → Execute as: Me
-  → Who has access: Anyone
-  → Click Deploy → copy the Web App URL
-
-  STEP 5 — Add the URL to this HTML file
-  ────────────────────────────────────────
-  Find this line near the top of the <script> section:
-    const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE";
-  Replace the placeholder with your copied URL.
-
-  STEP 6 — Push to GitHub & enable GitHub Pages
-  ───────────────────────────────────────────────
-  1. Create a new repo (or use an existing one)
-  2. Upload this HTML file — rename it to index.html
-  3. Go to repo Settings → Pages
-  4. Source: Deploy from a branch → main → / (root) → Save
-  5. Your form will be live at: https://yourusername.github.io/your-repo-name
-
-════════════════════════════════════════════════════════════════════════════════
--->
 
 </body>
 </html>
