@@ -404,7 +404,7 @@
   // ── CONFIG ───────────────────────────────────────────────────────────────────
   // Replace this with your Google Apps Script Web App URL after deployment.
   // See README below for setup instructions.
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq07frg-gH5hl8xoC78-F51V4fM78VXwGb4xKz-qCSKtodLe37OJgYJ4ysCPqwnop7Vg/exec";
+  const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE";
   // ─────────────────────────────────────────────────────────────────────────────
 
   const canvas  = document.getElementById("sigCanvas");
@@ -490,18 +490,17 @@
         throw new Error("DEMO_MODE");
       }
 
-      const resp = await fetch(APPS_SCRIPT_URL, {
+      // Google Apps Script requires no-cors mode — we can't read the response
+      // body back, so we fire-and-forget and treat a non-throwing fetch as success.
+      await fetch(APPS_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       });
-      const data = await resp.json();
 
-      if (data.result === "success") {
-        onSuccess();
-      } else {
-        throw new Error(data.error || "Submission failed");
-      }
+      // If fetch didn't throw, the request reached Google — treat as success.
+      onSuccess();
     } catch (err) {
       if (err.message === "DEMO_MODE") {
         showStatus("error",
